@@ -1,0 +1,35 @@
+[
+  {
+    "method": "load_from_files",
+    "params": {
+      "file_paths": [
+        "keys/secure_key_1",
+        "keys/secure_key_2"
+      ]
+    }
+  },
+  {
+    "method": "load_from_env_variables",
+    "params": {}
+  },
+  {
+    "method": "load_from_gcp",
+    "params": {
+      "bucket": "some here",
+      "file_paths": [
+        "f1",
+        "f2"
+      ]
+    }
+  },
+  {
+    "method": "load_from_aws",
+    "params": {
+      "bucket": "some here",
+      "file_paths": [
+        "f1",
+        "f2"
+      ]
+    }
+  }
+]

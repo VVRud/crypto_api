@@ -1,0 +1,13 @@
+[tool.isort]
+profile = "black"
+
+[tool.black]
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+pythonpath = "api/src"
+testpaths = [
+    "api/tests"
+]
