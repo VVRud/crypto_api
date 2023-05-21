@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
+    """Basic user class"""
+
     username: str
     """Unique username slug."""
 

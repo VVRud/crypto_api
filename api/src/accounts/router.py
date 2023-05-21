@@ -1,26 +1,29 @@
-from typing import Annotated
-
-from dependencies import db_session
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import database
 
 # TODO: Change type
-db_depends = Annotated[None, Depends(db_session)]
 router = APIRouter(prefix="/accounts", tags=["Account Management"])
 
 
 @router.post("/create")
-async def create_account(symbol: str):
+async def create_account(
+    symbol: str, session: AsyncSession = Depends(database.with_session)
+):
     """Docs here."""
     pass
 
 
 @router.get("/list")
-async def list_accounts(db_session: db_depends):
+async def list_accounts(session: AsyncSession = Depends(database.with_session)):
     """Docs here."""
     pass
 
 
 @router.get("/retrieve")
-async def retrieve_account(account_id: int):
+async def retrieve_account(
+    account_id: int, session: AsyncSession = Depends(database.with_session)
+):
     """Docs here."""
     pass

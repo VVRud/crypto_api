@@ -17,6 +17,7 @@ class KeysLoader(metaclass=SingletonMeta):
         self.funcs = {name[1:]: inst for name, inst in inspect.getmembers(self)}
 
     def load_aes_keys(self) -> list[tuple[int, str]]:
+        """Load AES Shamir key parts."""
         key_parts = []
         for conf in self.config["AES_KEYS"]:
             try:
