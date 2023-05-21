@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+  postgresql:
+    image: 'bitnami/postgresql:latest'
+    restart: always
+    environment:
+      - POSTGRESQL_USERNAME=my_user
+      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_DATABASE=my_database
+    ports:
+      - '5432:5432'
+    networks:
+      - internal-net
+    volumes:
+      - postgres_data:/bitnami/postgresql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    networks:
+      - internal-net
+
+networks:
+  internal-net:
+    driver: bridge
+
+
+volumes:
+  postgres_data:

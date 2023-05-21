@@ -1,35 +1,45 @@
-[
-  {
-    "method": "load_from_files",
-    "params": {
-      "file_paths": [
-        "keys/secure_key_1",
-        "keys/secure_key_2"
-      ]
+{
+  "AES_KEYS": [
+    {
+      "method": "load_from_files",
+      "params": {
+        "file_paths": [
+          "keys/secure_key_1",
+          "keys/secure_key_2"
+        ]
+      }
+    },
+    {
+      "method": "load_from_env_variables",
+      "params": {
+        "env_starts": "AES_SECRET_KEY_"
+      }
+    },
+    {
+      "method": "load_from_gcp",
+      "params": {
+        "bucket": "some here",
+        "file_paths": [
+          "f1",
+          "f2"
+        ]
+      }
+    },
+    {
+      "method": "load_from_aws",
+      "params": {
+        "bucket": "some here",
+        "file_paths": [
+          "f1",
+          "f2"
+        ]
+      }
     }
-  },
-  {
+  ],
+  "JWT_KEY": {
     "method": "load_from_env_variables",
-    "params": {}
-  },
-  {
-    "method": "load_from_gcp",
     "params": {
-      "bucket": "some here",
-      "file_paths": [
-        "f1",
-        "f2"
-      ]
-    }
-  },
-  {
-    "method": "load_from_aws",
-    "params": {
-      "bucket": "some here",
-      "file_paths": [
-        "f1",
-        "f2"
-      ]
+      "env_name": "JWT_SECRET_KEY"
     }
   }
-]
+}

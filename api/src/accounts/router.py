@@ -9,15 +9,18 @@ router = APIRouter(prefix="/accounts", tags=["Account Management"])
 
 
 @router.post("/create")
-async def create_account(db_session: db_depends, symbol: str):
+async def create_account(symbol: str):
+    """Docs here."""
     pass
 
 
 @router.get("/list")
 async def list_accounts(db_session: db_depends):
+    """Docs here."""
     pass
 
 
 @router.get("/retrieve")
-async def retrieve_account(db_session: db_depends, account_id: int):
+async def retrieve_account(account_id: int):
+    """Docs here."""
     pass

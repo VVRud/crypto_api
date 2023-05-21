@@ -17,19 +17,39 @@
 # # Get Bitcoin HDWallet from entropy
 # mnemonic: str = generate_mnemonic(strength=STRENGTH)
 # basic_wallet = hdwallet.from_mnemonic(mnemonic)
+# print(json.dumps(hdwallet.dumps(), indent=4, ensure_ascii=False))
+# print(hdwallet.private_key())
+# print(hdwallet.public_key())
+# print(hdwallet.p2pkh_address())
+# print(hdwallet.xprivate_key(encoded=True))
+# print(hdwallet.xprivate_key(encoded=False))
+# pubkey = "xprv9s21ZrQH143K2QfnQPtWLMcmRNSR7KA85u3KmoY4oYmSCwtkpvoL7epKHS1pQAzkCZJW7dJLkSYY84Xj2aqSgqoQkv5UhW42vkXkqZSoRG5"
+# hdwallet: HDWallet = HDWallet(symbol=BTC, use_default_path=True)
+# hdwallet.from_xprivate_key(pubkey, strict=True)
+# # Print all Bitcoin HDWallet information's
+# print(json.dumps(hdwallet.dumps(), indent=4, ensure_ascii=False))
+#
 #
 # derived_wallet = hdwallet.from_mnemonic(
 #     mnemonic, passphrase=PASSPHRASE
 # )
-#
-# print(hdwallet.private_key())
-# print(hdwallet.public_key())
-# print(hdwallet.p2pkh_address())
-# # Print all Bitcoin HDWallet information's
-# print(json.dumps(hdwallet.dumps(), indent=4, ensure_ascii=False))
 
-from typing import Annotated
+from accounts.router import router as accounts_router
+from auth.router import router as auth_router
+from fastapi import FastAPI
 
-from fastapi import Cookie, FastAPI
+from database import database
 
 app = FastAPI()
+app.include_router(accounts_router)
+app.include_router(auth_router)
+
+
+@app.on_event("startup")
+async def startup():
+    await database.initialize_db()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    pass
