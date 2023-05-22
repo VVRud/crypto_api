@@ -1,5 +1,7 @@
 [tool.isort]
 profile = "black"
+sections = "FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+no_lines_before = "LOCALFOLDER"
 
 [tool.black]
 target-version = ['py310']
