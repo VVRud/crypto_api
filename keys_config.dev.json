@@ -4,8 +4,8 @@
       "method": "load_from_files",
       "params": {
         "file_paths": [
-          "keys/secure_key_1",
-          "keys/secure_key_2"
+          "dev_keys/secure_key_1",
+          "dev_keys/secure_key_2"
         ]
       }
     },

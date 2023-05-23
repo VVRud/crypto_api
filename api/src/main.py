@@ -1,55 +1,35 @@
-# from hdwallet import HDWallet
-# from hdwallet.utils import generate_mnemonic, generate_passphrase
-# from hdwallet.symbols import BTC
-# import hdwallet.symbols as SYMBOLS
-# from typing import Optional
-#
-# import json
-#
-# STRENGTH: int = 256
-# PASSPHRASE: Optional[str] = generate_passphrase(length=64)
-#
-# if "BTC" in SYMBOLS.__all__:
-#     print("HEH")
-#
-# # Initialize Bitcoin mainnet HDWallet
-# hdwallet: HDWallet = HDWallet(symbol=BTC, use_default_path=True)
-# # Get Bitcoin HDWallet from entropy
-# mnemonic: str = generate_mnemonic(strength=STRENGTH)
-# basic_wallet = hdwallet.from_mnemonic(mnemonic)
-# print(json.dumps(hdwallet.dumps(), indent=4, ensure_ascii=False))
-# print(hdwallet.private_key())
-# print(hdwallet.public_key())
-# print(hdwallet.p2pkh_address())
-# print(hdwallet.xprivate_key(encoded=True))
-# print(hdwallet.xprivate_key(encoded=False))
-# pubkey = "xprv9s21ZrQH143K2QfnQPtWLMcmRNSR7KA85u3KmoY4oYmSCwtkpvoL7epKHS1pQAzkCZJW7dJLkSYY84Xj2aqSgqoQkv5UhW42vkXkqZSoRG5"
-# hdwallet: HDWallet = HDWallet(symbol=BTC, use_default_path=True)
-# hdwallet.from_xprivate_key(pubkey, strict=True)
-# # Print all Bitcoin HDWallet information's
-# print(json.dumps(hdwallet.dumps(), indent=4, ensure_ascii=False))
-#
-#
-# derived_wallet = hdwallet.from_mnemonic(
-#     mnemonic, passphrase=PASSPHRASE
-# )
-
-from accounts.router import router as accounts_router
-from auth.router import router as auth_router
+import config
+import uvicorn
+from account.router import router as account_router
+from address.router import router as address_router
 from fastapi import FastAPI
-
-from database import database
-
-app = FastAPI()
-app.include_router(accounts_router)
-app.include_router(auth_router)
+from modules.database import Database
+from user.router import router as user_router
 
 
-@app.on_event("startup")
 async def startup():
-    await database.initialize_db()
+    database = Database.get_database()
+    await database.initialize()
 
 
-@app.on_event("shutdown")
-async def shutdown():
-    pass
+def build_app():
+    app = FastAPI(
+        debug=config.DEBUG,
+        title="Crypto API",
+        description="REST API for generating valid cryptocurrency addresses and displaying them",
+        version=config.VERSION,
+        docs_url="/docs" if config.DEBUG else None,
+        redoc_url=None,
+        on_startup=[startup],
+    )
+    app.include_router(user_router)
+    app.include_router(account_router)
+    app.include_router(address_router)
+    return app
+
+
+app = build_app()
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8090)

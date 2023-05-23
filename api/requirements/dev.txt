@@ -1,6 +1,14 @@
 fastapi
 uvicorn
+
 hdwallet
+asyncpg
+sqlalchemy
+python-jose
+passlib
+bcrypt
+python-multipart
+
 pytest
 black
 isort

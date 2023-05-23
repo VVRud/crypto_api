@@ -5,7 +5,7 @@ from typing import Callable
 import pytest
 from Crypto.Protocol.SecretSharing import Shamir
 from Crypto.Random import get_random_bytes
-from encoder import Encoder
+from modules.encoder import Encoder
 
 
 def shamir_keys() -> list[tuple[int, str]]:
@@ -48,7 +48,7 @@ def random_parts() -> tuple[list[tuple[int, str]], list[tuple[int, str]]]:
 @pytest.mark.parametrize(
     "text", ("123456789", "1234567890123456", "1234567890" * 2, "1234567890" * 1024)
 )
-@pytest.mark.parametrize("keys", (shamir_keys_full, shamir_keys_partial))
+@pytest.mark.parametrize("dev_keys", (shamir_keys_full, shamir_keys_partial))
 def test_encoding_ok(text: str, keys: Callable):
     keys_encoder, keys_decoder = keys()
 
@@ -70,7 +70,7 @@ def test_encoding_ok(text: str, keys: Callable):
     "text", ("123456789", "1234567890123456", "1234567890" * 2, "1234567890" * 1024)
 )
 @pytest.mark.parametrize(
-    "keys", (shamir_keys_not_enough, shamir_keys_broken, random_parts)
+    "dev_keys", (shamir_keys_not_enough, shamir_keys_broken, random_parts)
 )
 def test_encoding_failing(text: str, keys: Callable):
     keys_encoder, keys_decoder = keys()
