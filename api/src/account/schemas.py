@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Account(BaseModel):
-    """"""
+    """Wallet account."""
 
     id: int
     """Account unique id."""

@@ -19,15 +19,17 @@ services:
       - .env.dev
     restart: always
     environment:
-      - POSTGRESQL_HOST=postgresql
-      - POSTGRESQL_PORT=5432
+      POSTGRESQL_HOST: postgresql
+      PORT: 443
+      GUNICORN_CMD_ARGS: "--keyfile=/secrets/key.pem --certfile=/secrets/cert.pem"
     networks:
       - internal-net
     ports:
-      - "8080:80"
+      - "8080:443"
     volumes:
       - "${PWD}/keys_config.dev.json:/app/keys_config.json:ro"
-      - "${PWD}/dev_keys:/app/dev_keys:ro"
+      - "${PWD}/keys:/app/keys:ro"
+      - "${PWD}/certificates:/secrets:ro"
 
 
 networks:

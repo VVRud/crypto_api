@@ -8,11 +8,13 @@ from user.router import router as user_router
 
 
 async def startup():
+    """App startup function."""
     database = Database.get_database()
     await database.initialize()
 
 
 def build_app():
+    """Build an app for later usage."""
     app = FastAPI(
         debug=config.DEBUG,
         title="Crypto API",

@@ -13,17 +13,27 @@ from starlette import status
 
 
 class Auth(Singleton):
+    """
+    Authentication related module. Contains methods for user validation,
+    password hashing, creating tokens and validating them.
+    """
+
     JWT_ALGORITHM = config.JWT_ALGORITHM
     JWT_EXPIRE = config.JWT_EXPIRE
 
     PWD_ALGORITHM = config.PWD_ALGORITHM
 
     def __init__(self):
-        self.pwd_context = CryptContext(schemes=[Auth.PWD_ALGORITHM], deprecated="auto")
-        self.jwt_secret_token = KeysLoader.get_keys_loader().load_jwt_secret_token()
+        self.pwd_context = CryptContext(
+            schemes=[Auth.PWD_ALGORITHM], deprecated="auto"
+        )
+        self.jwt_secret_token = (
+            KeysLoader.get_keys_loader().load_jwt_secret_token()
+        )
 
     @classmethod
     def get_auth(cls):
+        """Get authentication class/context."""
         return cls()
 
     async def authenticate_user(
@@ -41,7 +51,9 @@ class Auth(Singleton):
         """Get hashed password."""
         return self.pwd_context.hash(password)
 
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+    def verify_password(
+        self, plain_password: str, hashed_password: str
+    ) -> bool:
         """Verify password hashes."""
         return self.pwd_context.verify(plain_password, hashed_password)
 
@@ -62,7 +74,10 @@ class Auth(Singleton):
         )
         return encoded_jwt
 
-    async def get_current_user(self, session: AsyncSession, token: str) -> models.User:
+    async def get_current_user(
+        self, session: AsyncSession, token: str
+    ) -> models.User:
+        """Retrieve current user from JWT token."""
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -81,8 +96,3 @@ class Auth(Singleton):
         if user is None:
             raise credentials_exception
         return user
-
-
-def auth() -> Auth:
-    """Get authentication context."""
-    return Auth()

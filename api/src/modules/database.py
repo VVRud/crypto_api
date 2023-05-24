@@ -17,17 +17,21 @@ class Database(Singleton):
 
     def __init__(self):
         self.engine = create_async_engine(self.CONNECTION_STRING)
-        self.session_maker = async_sessionmaker(self.engine, expire_on_commit=False)
+        self.session_maker = async_sessionmaker(
+            self.engine, expire_on_commit=False
+        )
 
     @classmethod
     def get_database(cls) -> "Database":
-        """Get database connection."""
+        """Get database connection context."""
         return cls()
 
     async def initialize(self):
         """Create data tables if needed on startup."""
         async with self.engine.begin() as conn:  # type: AsyncConnection
-            await conn.run_sync(models.Base.metadata.create_all, checkfirst=True)
+            await conn.run_sync(
+                models.Base.metadata.create_all, checkfirst=True
+            )
 
     @staticmethod
     async def create_user(sess: AsyncSession, user: models.User):
@@ -48,6 +52,7 @@ class Database(Singleton):
     async def create_account(
         sess: AsyncSession, user: models.User, account: models.Account
     ):
+        """Create account for a user."""
         account.user = user
         sess.add(account)
         await sess.commit()
@@ -58,6 +63,7 @@ class Database(Singleton):
     async def get_account_by_id(
         sess: AsyncSession, user: models.User, account_id: int
     ) -> None | models.Account:
+        """Get account for user by its id."""
         stmt = select(models.Account).where(
             models.Account.id == account_id and models.Account.user == user
         )
@@ -68,6 +74,7 @@ class Database(Singleton):
     async def get_account_by_name(
         sess: AsyncSession, user: models.User, name: str
     ) -> None | models.Account:
+        """Get account by its name."""
         stmt = select(models.Account).where(
             models.Account.name == name and models.Account.user == user
         )
@@ -78,7 +85,7 @@ class Database(Singleton):
     async def create_address(
         sess: AsyncSession, account: models.Account, address: models.Address
     ):
-        """Create user by its username and password."""
+        """Create address for an account."""
         address.account = account
         sess.add(address)
         await sess.commit()
@@ -89,8 +96,10 @@ class Database(Singleton):
     async def get_address_by_id(
         sess: AsyncSession, account: models.Account, address_id: int
     ):
+        """Get address by its id."""
         stmt = select(models.Address).where(
-            models.Address.id == address_id and models.Address.account == account
+            models.Address.id == address_id
+            and models.Address.account == account
         )
         result = await sess.scalars(stmt)
         return result.one_or_none()
@@ -99,8 +108,10 @@ class Database(Singleton):
     async def get_address_by_network(
         sess: AsyncSession, account: models.Account, network: str
     ) -> None | models.Account:
+        """Get address by its network."""
         stmt = select(models.Address).where(
-            models.Address.network == network and models.Address.account == account
+            models.Address.network == network
+            and models.Address.account == account
         )
         result = await sess.scalars(stmt)
         return result.one_or_none()

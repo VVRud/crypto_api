@@ -14,18 +14,23 @@ router = APIRouter(prefix="/user", tags=["User Management"])
 
 
 @router.post(
-    "/create", response_model=schemas.User, summary="Create user in the database."
+    "/create",
+    response_model=schemas.User,
+    summary="Create user in the database.",
 )
 async def create_user(
     user: schemas.UserCreation,
     session: AsyncSession = Depends(session_dependency),
     auth: Auth = Depends(Auth.get_auth),
 ):
-    """Docs here."""
+    """
+    Create user in the database. In case user with the username already exists the error will be returned..
+    """
     db_user = await Database.get_user(session, user.username)
     if db_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists.",
         )
     # Create initial user
     db_user = models.User(
@@ -35,14 +40,21 @@ async def create_user(
     return db_user
 
 
-@router.post("/token", response_model=schemas.Token, summary="Get JWT token for user.")
+@router.post(
+    "/token", response_model=schemas.Token, summary="Get JWT token for user."
+)
 async def get_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(session_dependency),
     auth: Auth = Depends(Auth.get_auth),
 ):
-    """Docs here."""
-    user = await auth.authenticate_user(session, form_data.username, form_data.password)
+    """
+    Create JWT Bearer access token for the user. This endpoint requires username and password.
+    In case user is not found or password is wrong the error will be raised.
+    """
+    user = await auth.authenticate_user(
+        session, form_data.username, form_data.password
+    )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

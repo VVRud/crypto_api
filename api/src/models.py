@@ -16,7 +16,6 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(), nullable=False)
-    # created_at: Mapped[dt.datetime] = mapped_column(DateTime(), default=lambda: dt.datetime.now())
 
     accounts: Mapped[List["Account"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
@@ -31,12 +30,10 @@ class Account(Base):
     name: Mapped[str] = mapped_column(String(), nullable=False)
     mnemonic: Mapped[str] = mapped_column(String(), nullable=False)
     passphrase: Mapped[str] = mapped_column(String(), nullable=False)
-    # created_at: Mapped[dt.datetime] = mapped_column(DateTime(), default=lambda: dt.datetime.now())
 
     user: Mapped["User"] = relationship(back_populates="accounts")
     addresses: Mapped[List["Address"]] = relationship(
-        back_populates="account",
-        cascade="all, delete-orphan",  # order_by="created_at"
+        back_populates="account", cascade="all, delete-orphan"
     )
 
 
@@ -47,6 +44,5 @@ class Address(Base):
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"))
     network: Mapped[str] = mapped_column(String(), nullable=False)
     address: Mapped[str] = mapped_column(String(), nullable=False)
-    # created_at: Mapped[dt.datetime] = mapped_column(DateTime(), default=lambda: dt.datetime.now())
 
     account: Mapped["Account"] = relationship(back_populates="addresses")

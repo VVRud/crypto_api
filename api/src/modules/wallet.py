@@ -10,6 +10,8 @@ from starlette import status
 
 
 class Wallet(Singleton):
+    """Wallet related class for managing addresses and accounts."""
+
     LANGUAGE = config.WALLET_LANGUAGE
     STRENGTH = config.WALLET_STRENGTH
     PASSPHRASE_LENGTH = config.PASSPHRASE_LENGTH
@@ -19,29 +21,38 @@ class Wallet(Singleton):
 
     @classmethod
     def get_wallet(cls):
+        """Get wallet context"""
         return cls()
 
     @staticmethod
     def normalize_symbol(symbol: str):
+        """Normalize entered symbol to existing format."""
         return symbol.upper()
 
     @staticmethod
     def validate_symbol(symbol: str):
+        """Validate symbol exists."""
         symbol = Wallet.normalize_symbol(symbol)
         if symbol not in SYMBOLS:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Wrong symbol provided."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Wrong symbol provided.",
             )
 
     def generate_mnemonic(self) -> str:
-        mnemonic = generate_mnemonic(language=Wallet.LANGUAGE, strength=Wallet.STRENGTH)
+        """Generate account mnemonic phrase."""
+        mnemonic = generate_mnemonic(
+            language=Wallet.LANGUAGE, strength=Wallet.STRENGTH
+        )
         return self.encoder.encrypt(mnemonic)
 
     def generate_passphrase(self):
+        """Generate account passphrase"""
         passphrase = generate_passphrase(length=Wallet.PASSPHRASE_LENGTH)
         return self.encoder.encrypt(passphrase)
 
     def _get_wallet(self, symbol: str, account: models.Account) -> HDWallet:
+        """Retrieve wallet for an account."""
         Wallet.validate_symbol(symbol)
         hdwallet = HDWallet(symbol=symbol, use_default_path=True).from_mnemonic(
             mnemonic=self.encoder.decrypt(account.mnemonic),
@@ -51,9 +62,11 @@ class Wallet(Singleton):
         return hdwallet
 
     def generate_address(self, symbol: str, account: models.Account):
+        """Generate address for an account."""
         hdwallet = self._get_wallet(symbol, account)
         return hdwallet.p2pkh_address()
 
     def generate_private_key(self, symbol: str, account: models.Account):
+        """Generate private key for an account."""
         hdwallet = self._get_wallet(symbol, account)
         return hdwallet.private_key()

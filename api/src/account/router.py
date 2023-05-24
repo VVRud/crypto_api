@@ -1,5 +1,3 @@
-from typing import Annotated
-
 import models
 from account import schemas
 from dependencies import oauth2_scheme_dependency, session_dependency
@@ -13,9 +11,13 @@ from starlette import status
 router = APIRouter(prefix="/account", tags=["Accounts Management"])
 
 
-@router.post("/create", response_model=schemas.Account)
+@router.post(
+    "/create",
+    response_model=schemas.Account,
+    summary="Create an account for a user.",
+)
 async def create_account(
-    account_name: None
+    name: None
     | str = Query(
         default=None,
         description="Unique account name. If not specified will be randomly generated.",
@@ -25,17 +27,20 @@ async def create_account(
     wallet: Wallet = Depends(Wallet.get_wallet),
     session: AsyncSession = Depends(session_dependency),
 ):
-    """Docs here."""
+    """
+    Create an account for a user. In case name is not provided it will be randomly generated.
+    If an account name exists for a user, an error will be raised.
+    """
     user = await auth.get_current_user(session, token)
-    if account_name is None:
-        account_name = wallet.generate_mnemonic()[:16]
-    elif (await Database.get_account_by_name(session, user, account_name)) is not None:
+    if name is None:
+        name = wallet.generate_mnemonic()[:16]
+    elif (await Database.get_account_by_name(session, user, name)) is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Account with this name already exists.",
         )
     account = models.Account(
-        name=account_name,
+        name=name,
         mnemonic=wallet.generate_mnemonic(),
         passphrase=wallet.generate_passphrase(),
     )
@@ -43,24 +48,32 @@ async def create_account(
     return account
 
 
-@router.get("/list", response_model=list[schemas.Account])
+@router.get(
+    "/list", response_model=list[schemas.Account], summary="List user accounts."
+)
 async def list_accounts(
     token: str = Depends(oauth2_scheme_dependency),
     auth: Auth = Depends(Auth.get_auth),
     session: AsyncSession = Depends(session_dependency),
 ):
-    """Docs here."""
+    """Get all user existing accounts."""
     user = await auth.get_current_user(session, token)
     return await user.awaitable_attrs.accounts
 
 
-@router.get("/retrieve", response_model=None | schemas.Account)
+@router.get(
+    "/retrieve",
+    response_model=None | schemas.Account,
+    summary="Retrieve an account.",
+)
 async def retrieve_account(
-    account_id: int = Query(..., title="Account ID.", description="Unique account ID."),
+    account_id: int = Query(
+        ..., title="Account ID.", description="Unique account ID."
+    ),
     token: str = Depends(oauth2_scheme_dependency),
     auth: Auth = Depends(Auth.get_auth),
     session: AsyncSession = Depends(session_dependency),
 ):
-    """Docs here."""
+    """Retrieve user account by its id. If account does not exist, null will be returned."""
     user = await auth.get_current_user(session, token)
     return await Database.get_account_by_id(session, user, account_id)

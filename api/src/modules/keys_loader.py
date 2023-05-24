@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class KeysLoader(Singleton):
-    """Class specifically used for dev_keys management."""
+    """Class specifically used for keys management."""
 
     CONFIG_FILE = config.KEYS_CONFIG_FILE
 
@@ -21,6 +21,7 @@ class KeysLoader(Singleton):
 
     @classmethod
     def get_keys_loader(cls) -> "KeysLoader":
+        """Get keys loader context."""
         return cls()
 
     def load_aes_keys(self) -> list[tuple[int, str]]:
@@ -40,15 +41,17 @@ class KeysLoader(Singleton):
 
     @staticmethod
     def _load_from_aws(bucket, file_paths) -> list[tuple[int, str]]:
+        """Load and read file key from AWS."""
         raise Exception("Failed loading")
 
     @staticmethod
     def _load_from_gcp(bucket, file_paths) -> list[tuple[int, str]]:
+        """Load and read file key from GCP."""
         raise Exception("Failed loading")
 
     @staticmethod
     def _load_from_files(file_paths: list[str]) -> list[tuple[int, str]]:
-        """Load dev_keys from files."""
+        """Load keys from files."""
         key_parts = []
         for file_path in file_paths:
             with open(file_path, "r") as file:
@@ -58,13 +61,15 @@ class KeysLoader(Singleton):
 
     @staticmethod
     def _load_from_env_variables(**kwargs) -> list[tuple[int, str]] | str:
-        """Load dev_keys from environment variables."""
+        """Load keys from environment variables."""
         if "env_name" in kwargs:
             return os.environ[kwargs["env_name"]]
         elif "env_starts" in kwargs:
             key_name = kwargs["env_starts"]
             key_parts = []
-            for env_name in filter(lambda x: x.startswith(key_name), os.environ.keys()):
+            for env_name in filter(
+                lambda x: x.startswith(key_name), os.environ.keys()
+            ):
                 key_parts.append(
                     (int(env_name.replace(key_name, "")), os.environ[env_name])
                 )
