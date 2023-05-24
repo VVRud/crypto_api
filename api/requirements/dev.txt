@@ -10,5 +10,8 @@ bcrypt
 python-multipart
 
 pytest
+pytest-asyncio
+coinaddrvalidator
+sqlalchemy_utils
 black
 isort

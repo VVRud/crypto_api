@@ -6,13 +6,12 @@ from fastapi import HTTPException
 from jose import JWTError, jwt
 from modules.database import Database
 from modules.keys_loader import KeysLoader
-from modules.singleton import Singleton
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 
-class Auth(Singleton):
+class Auth:
     """
     Authentication related module. Contains methods for user validation,
     password hashing, creating tokens and validating them.
@@ -58,10 +57,10 @@ class Auth(Singleton):
         return self.pwd_context.verify(plain_password, hashed_password)
 
     def create_access_token(
-        self, data: dict, expires_delta: timedelta | None = None
+        self, username: str, expires_delta: timedelta | None = None
     ) -> str:
         """Create JWT access token."""
-        to_encode = data.copy()
+        to_encode = {"sub": username}
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:

@@ -4,15 +4,13 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.SecretSharing import Shamir
 from Crypto.Util.Padding import pad, unpad
 from modules.keys_loader import KeysLoader
-from modules.singleton import Singleton
 
 
-class Encoder(Singleton):
+class Encoder:
     """AES encoder."""
 
-    def __init__(self):
+    def __init__(self, key_parts: list[tuple[int, str]] = None):
         self._bs = AES.block_size
-        key_parts = KeysLoader.get_keys_loader().load_aes_keys()
         key_parts = [
             (idx, base64.b64decode(key_part.encode()))
             for idx, key_part in key_parts
@@ -22,7 +20,7 @@ class Encoder(Singleton):
     @classmethod
     def get_encoder(cls) -> "Encoder":
         """Get Encoder class and context."""
-        return cls()
+        return cls(KeysLoader.get_keys_loader().load_aes_keys())
 
     def encrypt(self, raw: str) -> str:
         """Encrypt incoming string."""

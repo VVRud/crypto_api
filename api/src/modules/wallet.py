@@ -2,19 +2,19 @@ import config
 import models
 from fastapi import HTTPException
 from hdwallet import HDWallet
-from hdwallet.symbols import __all__ as SYMBOLS
+from hdwallet.symbols import BCH, BTC, DASH, DOGE, ETH, RVN, ZEC
 from hdwallet.utils import generate_mnemonic, generate_passphrase
 from modules.encoder import Encoder
-from modules.singleton import Singleton
 from starlette import status
 
 
-class Wallet(Singleton):
+class Wallet:
     """Wallet related class for managing addresses and accounts."""
 
     LANGUAGE = config.WALLET_LANGUAGE
     STRENGTH = config.WALLET_STRENGTH
     PASSPHRASE_LENGTH = config.PASSPHRASE_LENGTH
+    SYMBOLS = [BTC, ETH, BCH, DASH, DOGE, ZEC, RVN]
 
     def __init__(self):
         self.encoder = Encoder.get_encoder()
@@ -29,14 +29,13 @@ class Wallet(Singleton):
         """Normalize entered symbol to existing format."""
         return symbol.upper()
 
-    @staticmethod
-    def validate_symbol(symbol: str):
+    def validate_symbol(self, symbol: str):
         """Validate symbol exists."""
         symbol = Wallet.normalize_symbol(symbol)
-        if symbol not in SYMBOLS:
+        if symbol not in self.SYMBOLS:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Wrong symbol provided.",
+                detail=f"Wrong symbol provided. Available symbols are: {self.SYMBOLS}",
             )
 
     def generate_mnemonic(self) -> str:
@@ -53,7 +52,7 @@ class Wallet(Singleton):
 
     def _get_wallet(self, symbol: str, account: models.Account) -> HDWallet:
         """Retrieve wallet for an account."""
-        Wallet.validate_symbol(symbol)
+        self.validate_symbol(symbol)
         hdwallet = HDWallet(symbol=symbol, use_default_path=True).from_mnemonic(
             mnemonic=self.encoder.decrypt(account.mnemonic),
             language=self.LANGUAGE,

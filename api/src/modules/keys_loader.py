@@ -4,25 +4,22 @@ import logging
 import os
 
 import config
-from modules.singleton import Singleton
 
 logger = logging.getLogger(__name__)
 
 
-class KeysLoader(Singleton):
+class KeysLoader:
     """Class specifically used for keys management."""
 
-    CONFIG_FILE = config.KEYS_CONFIG_FILE
-
-    def __init__(self):
-        with open(self.CONFIG_FILE, "r") as file:
+    def __init__(self, config_file: str):
+        with open(config_file, "r") as file:
             self.config = json.load(file)
         self.funcs = {name[1:]: inst for name, inst in inspect.getmembers(self)}
 
     @classmethod
     def get_keys_loader(cls) -> "KeysLoader":
         """Get keys loader context."""
-        return cls()
+        return cls(config.KEYS_CONFIG_FILE)
 
     def load_aes_keys(self) -> list[tuple[int, str]]:
         """Load AES Shamir key parts."""

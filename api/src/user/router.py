@@ -62,7 +62,7 @@ async def get_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = auth.create_access_token(
-        data={"sub": user.username},
+        username=user.username,
         expires_delta=timedelta(minutes=auth.JWT_EXPIRE),
     )
     return {"access_token": access_token, "token_type": "bearer"}
