@@ -33,7 +33,9 @@ async def create_account(
     """
     user = await auth.get_current_user(session, token)
     if name is None:
-        name = wallet.generate_mnemonic()[:16]
+        name = "-".join(
+            wallet.encoder.decrypt(wallet.generate_mnemonic()).split(" ")[:2]
+        )
     elif (await Database.get_account_by_name(session, user, name)) is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -4,8 +4,6 @@ from fastapi import HTTPException
 from models import Account
 from modules.wallet import Wallet
 
-from .fixtures import account, user, wallet
-
 
 @pytest.mark.parametrize("symbol", Wallet.SYMBOLS)
 def test_addresses_generation(wallet: Wallet, account: Account, symbol: str):

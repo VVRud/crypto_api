@@ -2,8 +2,6 @@ import pytest
 from models import Account, Address, User
 from modules.database import Database
 
-from .fixtures import account, address, database, user, wallet
-
 
 @pytest.mark.asyncio
 async def test_user(database: Database, user: User):

@@ -1,8 +1,7 @@
-import os
-from typing import Tuple
-
 import pytest
 import pytest_asyncio
+from dependencies import session_dependency
+from httpx import AsyncClient
 from models import Account, Address, User
 from modules.auth import Auth
 from modules.database import Database
@@ -61,3 +60,27 @@ async def database(address: Address, account, user, request) -> Database:
     finally:
         db.engine.dispose(close=True)
         drop_database(db_url)
+
+
+@pytest_asyncio.fixture(scope="function")
+async def client(database) -> AsyncClient:
+    from main import app
+
+    async def override_session_dependency():
+        async with database.session_maker() as session:
+            yield session
+
+    app.dependency_overrides[session_dependency] = override_session_dependency
+
+    client = AsyncClient(app=app, base_url="http://test")
+    yield client
+    await client.aclose()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def token(client, user) -> str:
+    response = await client.post(
+        f"/user/token", data={"username": user.username, "password": "12345678"}
+    )
+
+    return response.json()["access_token"]

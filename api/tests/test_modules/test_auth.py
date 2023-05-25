@@ -3,9 +3,6 @@ from fastapi import HTTPException
 from models import User
 from modules.auth import Auth
 from modules.database import Database
-from sqlalchemy_utils import drop_database
-
-from .fixtures import account, address, auth, database, user, wallet
 
 
 def test_password_verification(auth: Auth):
@@ -18,7 +15,7 @@ def test_password_verification(auth: Auth):
 
 
 @pytest.mark.asyncio
-async def test_user_authentication(auth: Auth, database, user: User):
+async def test_user_authentication(auth: Auth, database: Database, user: User):
     async with database.session_maker() as session:
         u = await auth.authenticate_user(session, "random", "random")
         assert u is None
@@ -32,7 +29,7 @@ async def test_user_authentication(auth: Auth, database, user: User):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("username", (None, "random"))
-async def test_user_jwt_fails(auth: Auth, database, username):
+async def test_user_jwt_fails(auth: Auth, database: Database, username):
     t1 = auth.create_access_token(username)
     assert t1 is not None
 
@@ -43,7 +40,7 @@ async def test_user_jwt_fails(auth: Auth, database, username):
 
 
 @pytest.mark.asyncio
-async def test_user_jwt_succeeds(auth: Auth, database, user: User):
+async def test_user_jwt_succeeds(auth: Auth, database: Database, user: User):
     t1 = auth.create_access_token(user.username)
     assert t1 is not None
 

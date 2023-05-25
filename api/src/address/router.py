@@ -36,6 +36,11 @@ async def create_address(
     user = await auth.get_current_user(session, token)
     wallet.validate_symbol(network)
     account = await Database.get_account_by_id(session, user, account_id)
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account does not exist.",
+        )
     if (
         await Database.get_address_by_network(session, account, network)
     ) is not None:
@@ -65,6 +70,11 @@ async def list_addresses(
     """Retrieve and list account addresses."""
     user = await auth.get_current_user(session, token)
     account = await Database.get_account_by_id(session, user, account_id)
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account does not exist.",
+        )
     return await account.awaitable_attrs.addresses
 
 
@@ -87,5 +97,10 @@ async def retrieve_address(
     """Return address by an id from an account. if address does not exist null will be returned."""
     user = await auth.get_current_user(session, token)
     account = await Database.get_account_by_id(session, user, account_id)
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account does not exist.",
+        )
     address = await Database.get_address_by_id(session, account, address_id)
     return address
